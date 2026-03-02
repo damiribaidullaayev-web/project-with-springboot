@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subjects Management</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+
+        body {
+            background: radial-gradient(circle at top left, #00e6b8, #009f88, #003a34);
+            min-height: 100vh;
+            padding: 40px;
+            color: white;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(14px);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 0 40px rgba(0,255,200,0.4);
+            animation: fadeIn 0.8s ease-in-out;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+            text-shadow: 0 0 10px rgba(0,255,200,0.7);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .form-row input, .form-row select {
+            flex: 1;
+            padding: 12px;
+            border-radius: 10px;
+            border: none;
+            outline: none;
+            font-size: 14px;
+            background: rgba(0,0,0,0.3);
+            color: white;
+            box-shadow: inset 0 0 10px rgba(0,255,200,0.3);
+        }
+
+        .button {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #00ffd0, #00a68b);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            color: black;
+            font-weight: 600;
+            transition: 0.3s;
+            box-shadow: 0 0 12px rgba(0,255,200,0.6);
+        }
+
+        .button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0,255,200,1);
+        }
+
+        table {
+            width: 100%;
+            margin-top: 25px;
+            border-collapse: collapse;
+            overflow: hidden;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            color: white;
+        }
+
+        th {
+            background: rgba(0, 255, 200, 0.3);
+        }
+
+        tr:hover {
+            background: rgba(0, 255, 200, 0.25);
+            transition: 0.2s;
+        }
+
+        .update-btn, .delete-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            color: white;
+            font-size: 12px;
+        }
+
+        .update-btn { background: #0077ff; }
+        .update-btn:hover { background: #005be0; }
+        .delete-btn { background: #ff4f4f; }
+        .delete-btn:hover { background: #ff2f2f; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .alert {
+            text-align: center;
+            margin-bottom: 12px;
+            color: white;
+            display: none;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Subjects</h1>
+
+    <div class="form-row">
+        <input type="text" id="subjectName" placeholder="Название предмета">
+        <input type="number" id="teacherId" placeholder="ID учителя">
+        <button class="button" onclick="addSubject()">Добавить</button>
+    </div>
+
+    <div class="alert" id="alertBox"></div>
+
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Название</th>
+            <th>Teacher ID</th>
+            <th>Действия</th>
+        </tr>
+        </thead>
+        <tbody id="subjectsTable"></tbody>
+    </table>
+</div>
+
+<script>
+    const alertBox = document.getElementById("alertBox");
+
+    async function loadSubjects() {
+        try {
+            const res = await fetch("/api/subjects");
+            const data = await res.json();
+            const table = document.getElementById("subjectsTable");
+            table.innerHTML = "";
+            data.forEach(sub => {
+                table.innerHTML += `
+                    <tr>
+                        <td>${sub.subjectId}</td>
+                        <td>${sub.subjectName}</td>
+                        <td>${sub.teacherId || ''}</td>
+                        <td>
+                            <button class="update-btn" onclick="updateSubject(${sub.subjectId})">Изменить</button>
+                            <button class="delete-btn" onclick="deleteSubject(${sub.subjectId})">Удалить</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        } catch (err) {
+            console.error(err);
+            alertBox.style.display = "block";
+            alertBox.style.color = "#ff8370";
+            alertBox.innerText = "Не удалось загрузить предметы";
+        }
+    }
+
+    async function addSubject() {
+        const name = document.getElementById("subjectName").value;
+        const teacherId = document.getElementById("teacherId").value || null;
+
+        if (!name) {
+            alertBox.style.display = "block";
+            alertBox.style.color = "#ff8370";
+            alertBox.innerText = "Введите название предмета";
+            return;
+        }
+
+        try {
+            const res = await fetch("/api/subjects", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ subjectName: name, teacherId: teacherId ? Number(teacherId) : null })
+            });
+            if (!res.ok) throw new Error();
+
+            document.getElementById("subjectName").value = "";
+            document.getElementById("teacherId").value = "";
+            alertBox.style.display = "block";
+            alertBox.style.color = "#7cffd2";
+            alertBox.innerText = "Предмет добавлен!";
+            loadSubjects();
+        } catch (err) {
+            console.error(err);
+            alertBox.style.display = "block";
+            alertBox.style.color = "#ff8370";
+            alertBox.innerText = "Не удалось добавить предмет";
+        }
+    }
+
+    async function deleteSubject(id) {
+        if (!confirm("Вы уверены, что хотите удалить этот предмет?")) return;
+        try {
+            await fetch(`/api/subjects/${id}`, { method: "DELETE" });
+            alertBox.style.display = "block";
+            alertBox.style.color = "#7cffd2";
+            alertBox.innerText = "Предмет удалён!";
+            loadSubjects();
+        } catch (err) {
+            console.error(err);
+            alertBox.style.display = "block";
+            alertBox.style.color = "#ff8370";
+            alertBox.innerText = "Не удалось удалить предмет";
+        }
+    }
+
+    async function updateSubject(id) {
+        const newName = prompt("Новое название предмета:");
+        if (!newName) return;
+        const newTeacherId = prompt("Новый Teacher ID (оставьте пустым, если не меняем):");
+        try {
+            await fetch(`/api/subjects/${id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ subjectName: newName, teacherId: newTeacherId ? Number(newTeacherId) : null })
+            });
+            alertBox.style.display = "block";
+            alertBox.style.color = "#7cffd2";
+            alertBox.innerText = "Предмет обновлён!";
+            loadSubjects();
+        } catch (err) {
+            console.error(err);
+            alertBox.style.display = "block";
+            alertBox.style.color = "#ff8370";
+            alertBox.innerText = "Не удалось обновить предмет";
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", loadSubjects);
+</script>
+</body>
+</html>

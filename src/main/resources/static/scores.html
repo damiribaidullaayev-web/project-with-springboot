@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Score Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f4f4f4;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        form {
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        input, button {
+            padding: 8px;
+            margin: 5px 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background: #007BFF;
+            color: #fff;
+        }
+
+        button {
+            background: #007BFF;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Score Management</h1>
+
+<form id="scoreForm">
+    <label for="userId">User ID</label>
+    <input type="number" id="userId" name="userId" placeholder="Enter User ID" required>
+
+    <label for="examId">Exam ID</label>
+    <input type="number" id="examId" name="examId" placeholder="Enter Exam ID" required>
+
+    <label for="score">Score</label>
+    <input type="number" id="score" name="score" placeholder="Enter Score" required>
+
+    <label for="startTime">Start Time</label>
+    <input type="datetime-local" id="startTime" name="startTime">
+
+    <label for="endTime">End Time</label>
+    <input type="datetime-local" id="endTime" name="endTime">
+
+    <button type="submit">Add / Update Score</button>
+</form>
+
+<h2>Existing Scores</h2>
+<table>
+    <thead>
+    <tr>
+        <th>Score ID</th>
+        <th>User ID</th>
+        <th>Exam ID</th>
+        <th>Score</th>
+        <th>Start Time</th>
+        <th>End Time</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody id="scoreTableBody">
+    <!-- Rows will be dynamically populated -->
+    </tbody>
+</table>
+
+<script>
+    const form = document.getElementById('scoreForm');
+    const tableBody = document.getElementById('scoreTableBody');
+
+    // Пример добавления строки в таблицу (заменить на реальный fetch к бэкенду)
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const userId = document.getElementById('userId').value;
+        const examId = document.getElementById('examId').value;
+        const score = document.getElementById('score').value;
+        const startTime = document.getElementById('startTime').value;
+        const endTime = document.getElementById('endTime').value;
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>#</td>
+            <td>${userId}</td>
+            <td>${examId}</td>
+            <td>${score}</td>
+            <td>${startTime}</td>
+            <td>${endTime}</td>
+            <td>
+                <button onclick="deleteRow(this)">Delete</button>
+            </td>
+        `;
+        tableBody.appendChild(row);
+
+        form.reset();
+    });
+
+    function deleteRow(btn) {
+        const row = btn.parentNode.parentNode;
+        tableBody.removeChild(row);
+    }
+</script>
+
+</body>
+</html>

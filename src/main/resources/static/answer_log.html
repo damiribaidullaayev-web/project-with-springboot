@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Answer Log</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        input { padding: 5px; margin: 3px; width: 200px; }
+        button { padding: 6px 12px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<h2>Answer Log Management</h2>
+
+<div>
+    <input id="userId" placeholder="User ID">
+    <input id="examId" placeholder="Exam ID">
+    <input id="questionId" placeholder="Question ID">
+    <input id="optionId" placeholder="Selected Option ID">
+    <input id="answerText" placeholder="Answer Text">
+    <input id="timeTaken" placeholder="Time Taken">
+    <input id="isCorrect" placeholder="Y/N">
+
+    <button onclick="addAnswerLog()">Add</button>
+</div>
+
+<table>
+    <thead>
+    <tr>
+        <th>Log ID</th>
+        <th>User ID</th>
+        <th>Exam ID</th>
+        <th>Question ID</th>
+        <th>Answer</th>
+        <th>Option</th>
+        <th>Time Taken</th>
+        <th>Correct?</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody id="logTable"></tbody>
+</table>
+
+<script>
+    const apiUrl = "http://localhost:8080/api/answer-log";
+
+    async function loadData() {
+        const res = await fetch(apiUrl);
+        const data = await res.json();
+
+        const table = document.getElementById("logTable");
+        table.innerHTML = "";
+
+        data.forEach(item => {
+            const row = `
+                <tr>
+                    <td>${item.logId}</td>
+                    <td>${item.userId}</td>
+                    <td>${item.examId}</td>
+                    <td>${item.questionId}</td>
+                    <td>${item.answerText || ""}</td>
+                    <td>${item.selectedOptionId || ""}</td>
+                    <td>${item.timeTaken || ""}</td>
+                    <td>${item.isCorrect}</td>
+                    <td>
+                        <button onclick="deleteLog(${item.logId})">Delete</button>
+                    </td>
+                </tr>`;
+            table.innerHTML += row;
+        });
+    }
+
+    async function addAnswerLog() {
+        const body = {
+            userId: Number(userId.value),
+            examId: Number(examId.value),
+            questionId: Number(questionId.value),
+            selectedOptionId: Number(optionId.value),
+            answerText: answerText.value,
+            timeTaken: Number(timeTaken.value),
+            isCorrect: isCorrect.value
+        };
+
+        await fetch(apiUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body)
+        });
+
+        loadData();
+    }
+
+    async function deleteLog(id) {
+        await fetch(`${apiUrl}/${id}`, { method: "DELETE" });
+        loadData();
+    }
+
+    loadData();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exam System | Главная</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: #eaf6f6;
+            min-height: 100vh;
+        }
+
+        /* ===== LAYOUT ===== */
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 300px;
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(18px);
+            border-right: 1px solid rgba(255,255,255,0.08);
+            padding: 30px 25px;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 35px;
+            color: #7dffe8;
+            letter-spacing: 1px;
+        }
+
+        .news-title {
+            font-size: 16px;
+            margin-bottom: 15px;
+            opacity: 0.8;
+        }
+
+        .news-item {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 12px;
+            transition: 0.3s;
+        }
+
+        .news-item:hover {
+            background: rgba(125,255,232,0.12);
+            transform: translateY(-2px);
+        }
+
+        .news-item strong {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+
+        .news-item p {
+            font-size: 13px;
+            opacity: 0.8;
+        }
+
+        /* ===== CONTENT ===== */
+        .content {
+            flex: 1;
+            padding: 35px 45px;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .header span {
+            color: #7dffe8;
+        }
+
+        .actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 10px 22px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #7dffe8, #00bfa6);
+            color: #003b36;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #7dffe8;
+            border: 1px solid rgba(125,255,232,0.4);
+        }
+
+        .btn-outline:hover {
+            background: rgba(125,255,232,0.15);
+        }
+
+        /* ===== TESTS ===== */
+        .section-title {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+
+        .tests {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .test-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 20px;
+            transition: 0.3s;
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .test-card:hover {
+            transform: translateY(-5px);
+            background: rgba(125,255,232,0.12);
+        }
+
+        .test-card h3 {
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .test-info {
+            font-size: 13px;
+            opacity: 0.8;
+            margin-bottom: 15px;
+        }
+
+        .start-btn {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 8px;
+            background: rgba(125,255,232,0.2);
+            font-size: 13px;
+            color: #7dffe8;
+        }
+
+        /* ===== ANIMATION ===== */
+        .fade-in {
+            animation: fade 0.6s ease-in-out;
+        }
+
+        @keyframes fade {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== SIDEBAR INTERACTIVE ===== */
+
+        .news-item,
+        .about-item {
+            background: rgba(255,255,255,0.05);
+            border-radius: 14px;
+            padding: 14px;
+            margin-bottom: 14px;
+            cursor: pointer;
+            transition: 0.35s ease;
+            overflow: hidden;
+        }
+
+        .news-header,
+        .about-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+        }
+
+        .emoji {
+            font-size: 18px;
+        }
+
+        .news-details,
+        .about-details {
+            margin-top: 10px;
+            font-size: 13px;
+            line-height: 1.5;
+            opacity: 0;
+            max-height: 0;
+            transition: all 0.35s ease;
+        }
+
+        .news-item:hover,
+        .about-item:hover {
+            background: rgba(125,255,232,0.14);
+            transform: translateY(-2px);
+        }
+
+        .news-item:hover .news-details,
+        .about-item:hover .about-details {
+            opacity: 0.9;
+            max-height: 200px;
+        }
+
+        .about-title {
+            margin: 30px 0 15px;
+            font-size: 15px;
+            opacity: 0.85;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 20px;
+        }
+
+        /* ===== CONTENT HEADER ===== */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .header span {
+            color: #7dffe8;
+        }
+
+        .actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 10px 22px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #7dffe8, #00bfa6);
+            color: #003b36;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #7dffe8;
+            border: 1px solid rgba(125,255,232,0.4);
+        }
+
+        .btn-outline:hover {
+            background: rgba(125,255,232,0.15);
+        }
+
+        /* ===== NEWS SECTION ===== */
+        .news-section {
+            margin-bottom: 40px;
+        }
+
+        .news-section h2 {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: #b2fff2;
+        }
+
+        .news-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .news-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 14px;
+            padding: 20px;
+            transition: 0.35s ease;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .news-card h3 {
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .news-card p {
+            font-size: 13px;
+            opacity: 0.8;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.35s ease;
+        }
+
+        .news-card:hover {
+            background: rgba(125,255,232,0.12);
+            transform: translateY(-3px);
+        }
+
+        .news-card:hover p {
+            max-height: 200px;
+            opacity: 0.9;
+        }
+
+        /* ===== TESTS SECTION ===== */
+        .tests-section h2 {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: #b2fff2;
+        }
+
+        .tests {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .test-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.06);
+            transition: 0.3s;
+            cursor: default; /* Сделаем только одну кнопку активной */
+        }
+
+        .test-card h3 {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .test-card p {
+            font-size: 13px;
+            opacity: 0.8;
+            margin-bottom: 15px;
+        }
+
+        .start-btn {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #7dffe8, #00bfa6);
+            color: #003b36;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .start-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(125,255,232,0.5);
+        }
+
+        /* Делаем только первую кнопку активной */
+        .test-card:nth-child(n+2) .start-btn {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        /* ===== INFO SECTION ===== */
+        .info-section h2 {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: #b2fff2;
+        }
+
+        .info-section p, .info-section ul {
+            font-size: 14px;
+            opacity: 0.85;
+            margin-bottom: 10px;
+        }
+
+        .info-section ul {
+            list-style: disc;
+            padding-left: 20px;
+        }
+
+        .info-section li {
+            margin-bottom: 6px;
+        }
+
+        /* ===== ANIMATION ===== */
+        .fade-in {
+            animation: fade 0.6s ease-in-out;
+        }
+
+        @keyframes fade {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+
+        /* ===== MOTIVATION SECTION ===== */
+        .motivation-section {
+            margin: 40px 0;
+        }
+
+        .motivation-section h2 {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: #b2fff2;
+        }
+
+        .motivation-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 20px;
+            font-size: 15px;
+            font-weight: 500;
+            color: #7dffe8;
+            text-align: center;
+            transition: all 0.7s ease-in-out;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        /* Анимация появления */
+        .motivation-card.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+
+        .ent-section {
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 0 20px;
+            font-family: 'Inter', sans-serif;
+            text-align: center;
+        }
+
+        .ent-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #7dffe8;
+        }
+
+        .ent-lead {
+            font-size: 16px;
+            line-height: 1.6;
+            margin: 0 auto 40px auto;
+            color: rgba(234,246,246,0.85);
+            max-width: 750px;
+        }
+
+        .ent-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            text-align: left;
+        }
+
+        .ent-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.06);
+            transition: 0.3s;
+            cursor: default;
+        }
+
+        .ent-card:hover {
+            transform: translateY(-5px);
+            background: rgba(125,255,232,0.12);
+        }
+
+        .ent-card-icon {
+            font-size: 30px;
+            margin-bottom: 12px;
+        }
+
+        .ent-card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #7dffe8;
+        }
+
+        .ent-card-text {
+            font-size: 14px;
+            opacity: 0.85;
+            line-height: 1.5;
+        }
+
+        .ent-highlight {
+            margin-top: 35px;
+            background: rgba(125,255,232,0.08);
+            border-left: 4px solid #7dffe8;
+            padding: 15px 18px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #eaf6f6;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .advice-section {
+            margin: 50px 0;
+            text-align: center;
+        }
+
+        .advice-section h2 {
+            font-size: 22px;
+            color: #7dffe8;
+            margin-bottom: 30px;
+        }
+
+        /* Контейнер карточек */
+        .advice-cards {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            perspective: 1000px; /* для 3D эффекта наклона */
+        }
+
+        /* Каждая карточка */
+        .advice-card {
+            background: linear-gradient(135deg, #7dffe8, #00bfa6);
+            border-radius: 18px;
+            padding: 22px;
+            width: 240px;
+            min-height: 160px;
+            color: #003b36;
+            font-weight: 500;
+            box-shadow: 0 8px 20px rgba(0,191,166,0.25);
+            transform: rotate(var(--angle));
+            transition: transform 0.4s ease, box-shadow 0.4s ease, background 0.4s ease;
+            cursor: default;
+        }
+
+        /* Заголовок внутри карточки */
+        .advice-card h3 {
+            font-size: 16px;
+            margin-bottom: 12px;
+        }
+
+        /* Текст */
+        .advice-card p {
+            font-size: 14px;
+            line-height: 1.5;
+            opacity: 0.9;
+        }
+
+        /* Разные углы для карточек */
+        .advice-card:nth-child(1) { --angle: -2deg; background: linear-gradient(135deg,#7dffe8,#00bfa6); }
+        .advice-card:nth-child(2) { --angle: 2deg; background: linear-gradient(135deg,#ffb347,#ffcc33); }
+        .advice-card:nth-child(3) { --angle: -1deg; background: linear-gradient(135deg,#a18cd1,#fbc2eb); }
+        .advice-card:nth-child(4) { --angle: 1deg; background: linear-gradient(135deg,#fbc2eb,#a6c1ee); }
+        .advice-card:nth-child(5) { --angle: -3deg; background: linear-gradient(135deg,#ff9a9e,#fad0c4); }
+
+        /* Hover эффект: чуть увеличиваем и меняем тень */
+        .advice-card:hover {
+            transform: rotate(0deg) scale(1.05);
+            box-shadow: 0 12px 30px rgba(125,255,232,0.5);
+        }
+
+        .tests-section {
+            margin: 50px 0;
+            text-align: center;
+        }
+
+        .tests-section h2 {
+            font-size: 22px;
+            margin-bottom: 30px;
+            color: #7dffe8;
+        }
+
+        .tests-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 25px;
+        }
+
+        .test-block {
+            display: flex;
+            align-items: center;
+            background: rgba(125,255,232,0.08);
+            border-radius: 18px;
+            padding: 20px 25px;
+            width: 320px;
+            min-height: 150px;
+            box-shadow: 0 10px 25px rgba(0,191,166,0.25);
+            transition: transform 0.4s ease, background 0.4s ease, box-shadow 0.4s ease;
+            cursor: pointer;
+            flex-direction: row;
+        }
+
+        .test-block:hover {
+            transform: translateY(-5px);
+            background: rgba(125,255,232,0.15);
+            box-shadow: 0 12px 30px rgba(125,255,232,0.5);
+        }
+
+        .test-icon {
+            font-size: 40px;
+            margin-right: 20px;
+        }
+
+        .test-info h3 {
+            font-size: 16px;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .test-info p {
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .skills span {
+            background: rgba(125,255,232,0.2);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #003b36;
+        }
+
+        .difficulty {
+            font-size: 13px;
+            font-weight: 500;
+            opacity: 0.8;
+        }
+
+
+    </style>
+</head>
+<body>
+
+<div class="layout fade-in">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="logo">EXAM SYSTEM</div>
+
+        <div class="news-title">Новости платформы</div>
+
+        <div class="news-item">
+            <div class="news-header">
+                <span class="emoji">🚀</span>
+                <strong>Новая система тестирования</strong>
+            </div>
+            <div class="news-details">
+                Мы обновили движок тестов: таймер работает стабильнее, результаты сохраняются автоматически,
+                интерфейс стал быстрее даже на слабых устройствах.
+            </div>
+        </div>
+
+        <div class="news-item">
+            <div class="news-header">
+                <span class="emoji">📊</span>
+                <strong>Аналитика результатов</strong>
+            </div>
+            <div class="news-details">
+                После прохождения тестов можно увидеть подробную статистику: проценты, слабые темы и рекомендации
+                для улучшения результата.
+            </div>
+        </div>
+
+        <div class="news-item">
+            <div class="news-header">
+                <span class="emoji">🧠</span>
+                <strong>Подготовка к экзаменам</strong>
+            </div>
+            <div class="news-details">
+                Платформа создана специально для подготовки к экзаменам: реальные вопросы, ограничение по времени
+                и честная оценка знаний.
+            </div>
+        </div>
+
+        <!-- Актуальные мировые новости и тенденции -->
+        <div class="news-title">Мировые тенденции</div>
+
+        <div class="news-item">
+            <div class="news-header">
+                <span class="emoji">🌐</span>
+                <strong>Популярность Java</strong>
+            </div>
+            <div class="news-details">
+                Java остаётся одним из самых востребованных языков программирования в мире.
+                Владение им открывает доступ к карьерным возможностям в IT, больших данных и backend-разработке.
+            </div>
+        </div>
+
+        <div class="news-item">
+            <div class="news-header">
+                <span class="emoji">🤖</span>
+                <strong>Искусственный интеллект</strong>
+            </div>
+            <div class="news-details">
+                AI активно внедряется в обучение и автоматизацию тестирования. Понимание алгоритмов
+                и структур данных сегодня важнее, чем когда-либо.
+            </div>
+        </div>
+
+        <div class="news-item">
+            <div class="news-header">
+                <span class="emoji">💡</span>
+                <strong>Образование онлайн</strong>
+            </div>
+            <div class="news-details">
+                Онлайн-платформы становятся основным способом подготовки к экзаменам по всему миру.
+                Важно использовать инструменты, которые максимально приближены к реальным условиям экзамена.
+            </div>
+        </div>
+
+        <div class="about-title">О платформе</div>
+
+        <div class="about-item">
+            <div class="about-header">
+                <span class="emoji">🎓</span>
+                <strong>Для студентов</strong>
+            </div>
+            <div class="about-details">
+                EXAM SYSTEM — это онлайн-платформа для подготовки к экзаменам и тестирования знаний по Java
+                и алгоритмам. Здесь вы можете практиковаться, анализировать результаты и видеть прогресс.
+            </div>
+        </div>
+
+        <div class="about-item">
+            <div class="about-header">
+                <span class="emoji">⚙️</span>
+                <strong>Наша цель</strong>
+            </div>
+            <div class="about-details">
+                Создать удобную, честную и прозрачную систему оценки знаний, которая мотивирует учиться
+                и помогает достигать высоких результатов.
+            </div>
+        </div>
+
+        <div class="about-item">
+            <div class="about-header">
+                <span class="emoji">🌟</span>
+                <strong>Мировая перспектива</strong>
+            </div>
+            <div class="about-details">
+                Используя платформу, вы готовитесь не только к локальным экзаменам, но и формируете навыки,
+                востребованные на международном уровне: алгоритмы, структурирование данных, логическое мышление.
+            </div>
+        </div>
+
+        <div class="about-item">
+            <div class="about-header">
+                <span class="emoji">💻</span>
+                <strong>Будущая карьера</strong>
+            </div>
+            <div class="about-details">
+                Результаты практики и тестов на портале можно использовать для подготовки к собеседованиям
+                и стажировкам, повышая шансы на успешное трудоустройство.
+            </div>
+        </div>
+    </aside>
+
+
+    <!-- CONTENT -->
+    <main class="content">
+
+        <div class="header">
+            <h1>Добро пожаловать, <span id="userName">Студент</span></h1>
+            <div class="actions">
+                <button class="btn btn-primary" onclick="startTests()">Начать тест</button>
+                <button class="btn btn-outline" onclick="logout()">Выйти</button>
+            </div>
+        </div>
+
+        <!-- Новости / полезные советы -->
+        <section class="advice-section">
+            <h2>Полезные советы для подготовки</h2>
+            <div class="advice-cards">
+                <div class="advice-card">
+                    <h3>📝 Планируйте время</h3>
+                    <p>Разделяйте изучение на небольшие блоки по 25–30 минут. Так информация усваивается быстрее, а усталость меньше.</p>
+                </div>
+                <div class="advice-card">
+                    <h3>💡 Практикуйтесь регулярно</h3>
+                    <p>Решайте хотя бы 5–10 задач в день. Постоянная практика улучшает навыки и помогает запомнить теорию.</p>
+                </div>
+                <div class="advice-card">
+                    <h3>📚 Повторение — ключ</h3>
+                    <p>Пересматривайте пройденный материал через 1–2 дня. Это помогает закрепить знания в долгосрочной памяти.</p>
+                </div>
+                <div class="advice-card">
+                    <h3>🧠 Анализируйте ошибки</h3>
+                    <p>Не просто решайте задачи, а разбирайте ошибки. Так вы быстро выявляете слабые места и улучшаете результат.</p>
+                </div>
+                <div class="advice-card">
+                    <h3>🚀 Мотивируйте себя</h3>
+                    <p>Ставьте маленькие цели на каждый день. Достижение их мотивирует продолжать и улучшать результаты.</p>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Доступные тесты -->
+        <section class="tests-section">
+            <h2>Доступные тесты</h2>
+            <div class="tests-grid">
+                <div class="test-block">
+                    <div class="test-icon">🟢</div>
+                    <div class="test-info">
+                        <h3>DATABASES</h3>
+                        <p>10 вопросов · 15 минут</p>
+                        <div class="skills">
+                            <span>SQL</span>
+                            <span>Table</span>
+                            <span>ACID</span>
+                        </div>
+                        <div class="difficulty">Уровень: ⭐⭐☆☆☆</div>
+                    </div>
+                </div>
+
+                <div class="test-block">
+                    <div class="test-icon">🔵</div>
+                    <div class="test-info">
+                        <h3>Java — Продвинутый</h3>
+                        <p>15 вопросов · 25 минут</p>
+                        <div class="skills">
+                            <span>ООП</span>
+                            <span>Коллекции</span>
+                            <span>Исключения</span>
+                        </div>
+                        <div class="difficulty">Уровень: ⭐⭐⭐⭐☆</div>
+                    </div>
+                </div>
+
+                <div class="test-block">
+                    <div class="test-icon">🟡</div>
+                    <div class="test-info">
+                        <h3>Алгоритмы и структуры данных</h3>
+                        <p>20 вопросов · 30 минут</p>
+                        <div class="skills">
+                            <span>Массивы</span>
+                            <span>Списки</span>
+                            <span>Сортировки</span>
+                        </div>
+                        <div class="difficulty">Уровень: ⭐⭐⭐⭐⭐</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <section class="motivation-section">
+            <h2>💡 Мотивация дня</h2>
+            <div class="motivation-card" id="motivationCard">
+                "Учиться никогда не поздно — даже маленький шаг ведет к большой цели!"
+            </div>
+        </section>
+
+
+        <section class="ent-section">
+            <h2 class="ent-title">Зачем нужен наш портал?</h2>
+            <p class="ent-lead">
+                Портал помогает студентам готовиться к экзаменам по Java и алгоритмам, отслеживать прогресс и работать над слабыми темами.
+            </p>
+
+            <div class="ent-cards">
+                <!-- Прогресс и анализ -->
+                <div class="ent-card">
+                    <div class="ent-card-icon">📊</div>
+                    <div class="ent-card-title">Анализ прогресса</div>
+                    <div class="ent-card-text">
+                        Отслеживайте, насколько хорошо вы усвоили материал и какие темы требуют внимания.
+                    </div>
+                </div>
+
+                <!-- Тайм-менеджмент -->
+                <div class="ent-card">
+                    <div class="ent-card-icon">⏱️</div>
+                    <div class="ent-card-title">Практика с таймером</div>
+                    <div class="ent-card-text">
+                        Решайте тесты в условиях времени, как на настоящем экзамене.
+                    </div>
+                </div>
+
+                <!-- Выявление слабых тем -->
+                <div class="ent-card">
+                    <div class="ent-card-icon">🧩</div>
+                    <div class="ent-card-title">Слабые темы</div>
+                    <div class="ent-card-text">
+                        Получайте подсказки по темам, в которых есть пробелы, чтобы эффективно подготовиться.
+                    </div>
+                </div>
+
+                <!-- Мотивация и цели -->
+                <div class="ent-card">
+                    <div class="ent-card-icon">🚀</div>
+                    <div class="ent-card-title">Мотивация и цели</div>
+                    <div class="ent-card-text">
+                        Следите за прогрессом, ставьте цели и достигайте их быстрее благодаря регулярной практике.
+                    </div>
+                </div>
+            </div>
+
+            <div class="ent-highlight">
+                Регулярное использование портала помогает повысить эффективность подготовки и улучшить итоговые результаты.
+            </div>
+        </section>
+
+
+    </main>
+
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const userName = localStorage.getItem("userName");
+        const userId = localStorage.getItem("userId");
+
+        // Если пользователь не залогинен — редирект на login
+        if (!userId) {
+            window.location.href = "/index.html";
+            return;
+        }
+
+        // Подставляем имя в span
+        const userNameSpan = document.getElementById("userName");
+        if (userNameSpan) {
+            userNameSpan.innerText = userName || 'Студент';
+        }
+
+        // Функции кнопок
+        window.startTests = () => window.location.href = "/student.html";
+        window.startTest = (testId) => window.location.href = "/student.html?testId=" + testId;
+        window.logout = () => {
+            localStorage.clear(); // очищаем все данные
+            window.location.href = "/index.html";
+        };
+    });
+
+    const quotes = [
+        "📚 Учение — свет, а экзамены — проверка света!",
+        "💪 Каждый день — шаг к твоей цели!",
+        "🚀 Маленькие усилия сегодня — большие победы завтра!",
+        "🧠 Практика важнее теории. Решай задачи каждый день!",
+        "🔥 Не бойся ошибок — бойся упустить шанс учиться!"
+    ];
+
+    let currentQuote = 0;
+    const motivationCard = document.getElementById('motivationCard');
+
+    function showNextQuote() {
+        // Скрываем карточку перед сменой
+        motivationCard.classList.remove('show');
+
+        setTimeout(() => {
+            motivationCard.innerText = quotes[currentQuote];
+            motivationCard.classList.add('show');
+            currentQuote = (currentQuote + 1) % quotes.length;
+        }, 500); // небольшая задержка для плавного эффекта
+    }
+
+    // Показ первой цитаты сразу
+    motivationCard.innerText = quotes[currentQuote];
+    motivationCard.classList.add('show');
+    currentQuote++;
+
+    // Авто-смена каждые 5 секунд
+    setInterval(showNextQuote, 5000);
+
+</script>
+
+
+</body>
+</html>

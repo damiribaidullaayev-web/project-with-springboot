@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Questions Management</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: radial-gradient(circle at top left, #00e6b8, #009f88, #003a34);
+            min-height: 100vh;
+            padding: 40px;
+            color: white;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+            text-shadow: 0 0 10px rgba(0,255,200,0.7);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(12px);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 0 40px rgba(0,255,200,0.4);
+            animation: fadeIn 0.7s ease;
+        }
+
+        label {
+            margin-top: 15px;
+            font-weight: 500;
+            display: block;
+            text-shadow: 0 0 10px rgba(0,255,200,0.5);
+        }
+
+        input, select {
+            width: 100%;
+            margin-top: 6px;
+            padding: 12px;
+            border-radius: 10px;
+            border: none;
+            background: rgba(0,0,0,0.3);
+            outline: none;
+            color: white;
+            font-size: 14px;
+            box-shadow: inset 0 0 10px rgba(0,255,200,0.3);
+        }
+
+        .btn {
+            margin-top: 15px;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #00ffd0, #00a68b);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            color: black;
+            box-shadow: 0 0 12px rgba(0,255,200,0.6);
+            transition: 0.3s;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 18px rgba(0,255,200,1);
+        }
+
+        .delete-btn {
+            background: linear-gradient(135deg, #ff4f4f, #cc0000);
+            color: white;
+            box-shadow: 0 0 12px rgba(255,80,80,0.6);
+        }
+
+        .delete-btn:hover {
+            box-shadow: 0 0 18px rgba(255,50,50,1);
+        }
+
+        table {
+            width: 100%;
+            margin-top: 25px;
+            border-collapse: collapse;
+            overflow: hidden;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.12);
+            backdrop-filter: blur(10px);
+            animation: fadeIn 0.7s ease;
+        }
+
+        th, td {
+            padding: 12px;
+            color: white;
+        }
+
+        th {
+            background: rgba(0, 255, 200, 0.25);
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: rgba(0,255,200,0.2);
+            transition: 0.2s;
+        }
+
+        .alert {
+            text-align: center;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            font-weight: 600;
+            display: none;
+            backdrop-filter: blur(8px);
+            animation: fadeIn 0.5s ease;
+        }
+
+        .alert.success {
+            background: rgba(0,255,150,0.4);
+            color: #003a34;
+            box-shadow: 0 0 12px rgba(0,255,200,0.7);
+        }
+
+        .alert.error {
+            background: rgba(255,80,80,0.4);
+            color: white;
+            box-shadow: 0 0 12px rgba(255,50,50,0.7);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+
+</head>
+<body>
+<h1>Questions Management</h1>
+
+<div id="questionAlert" class="alert"></div>
+
+<div>
+    <label for="subjectIdSelect">Выберите предмет:</label>
+    <select id="subjectIdSelect"></select>
+
+    <label for="questionText">Текст вопроса:</label>
+    <input type="text" id="questionText" placeholder="Введите вопрос">
+
+    <label for="questionType">Тип:</label>
+    <select id="questionType">
+        <option value="MCQ">MCQ</option>
+        <option value="OPEN">OPEN</option>
+        <option value="TF">TF</option>
+        <option value="MATCH">MATCH</option>
+        <option value="IMAGE">IMAGE</option>
+    </select>
+
+    <label for="difficulty">Сложность:</label>
+    <select id="difficulty">
+        <option value="Easy">Easy</option>
+        <option value="Medium">Medium</option>
+        <option value="Hard">Hard</option>
+    </select>
+
+    <label for="imageUrl">URL изображения (опционально):</label>
+    <input type="text" id="imageUrl" placeholder="https://example.com/image.jpg">
+
+    <button class="btn add-btn" onclick="addQuestion()">Добавить вопрос</button>
+</div>
+
+<table id="questionsTable">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Вопрос</th>
+        <th>Тип</th>
+        <th>Сложность</th>
+        <th>Предмет</th>
+        <th>Действия</th>
+    </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<script>
+    const questionAlert = document.getElementById("questionAlert");
+    let allQuestions = []; // Сохраняем все вопросы
+
+    // ======== Subjects ========
+    async function loadSubjects() {
+        try {
+            const res = await fetch("/api/subjects");
+            const subjects = await res.json();
+            const select = document.getElementById("subjectIdSelect");
+
+            // Добавляем опцию "Все предметы"
+            select.innerHTML = '<option value="">Все предметы</option>';
+
+            subjects.forEach(s => {
+                const option = document.createElement("option");
+                option.value = s.subjectId;
+                option.text = s.subjectName;
+                select.add(option);
+            });
+
+            // Обработчик изменения селекта для фильтрации
+            select.addEventListener("change", () => {
+                const selectedId = select.value;
+                if (!selectedId) {
+                    renderQuestions(allQuestions);
+                } else {
+                    const filtered = allQuestions.filter(q => String(q.subjectId) === String(selectedId));
+                    renderQuestions(filtered);
+                }
+            });
+
+        } catch (err) {
+            showAlert("Не удалось загрузить предметы", "error");
+        }
+    }
+
+    // ======== Questions ========
+    async function loadQuestions() {
+        try {
+            const res = await fetch("/api/questions");
+            allQuestions = await res.json(); // Сохраняем все вопросы
+            renderQuestions(allQuestions);
+        } catch (err) {
+            showAlert("Не удалось загрузить вопросы", "error");
+        }
+    }
+
+    // ======== Рендер таблицы ========
+    function renderQuestions(questions) {
+        const tableBody = document.querySelector("#questionsTable tbody");
+        tableBody.innerHTML = "";
+
+        if (questions.length === 0) {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `<td colspan="6" style="text-align:center; color:white;">Вопросов нет</td>`;
+            tableBody.appendChild(tr);
+            return;
+        }
+
+        questions.forEach(q => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+            <td>${q.questionId}</td>
+            <td>${q.questionText.length > 50 ? q.questionText.substring(0,50) + "..." : q.questionText}</td>
+            <td>${q.type}</td>
+            <td>${q.difficulty}</td>
+            <td>${q.subjectName}</td>
+            <td>
+                <button class="btn delete-btn" onclick="deleteQuestion(${q.questionId})">Удалить</button>
+            </td>
+        `;
+            tableBody.appendChild(tr);
+        });
+    }
+
+    // ======== Add Question ========
+    async function addQuestion() {
+        const subjectId = document.getElementById("subjectIdSelect").value;
+        const questionText = document.getElementById("questionText").value;
+        const type = document.getElementById("questionType").value;
+        const difficulty = document.getElementById("difficulty").value;
+        const imageUrl = document.getElementById("imageUrl").value;
+
+        if (!subjectId || !questionText) {
+            showAlert("Выберите предмет и введите текст вопроса", "error");
+            return;
+        }
+
+        try {
+            const res = await fetch("/api/questions", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ subjectId, questionText, type, difficulty, imageUrl })
+            });
+
+            if (!res.ok) throw new Error(await res.text());
+
+            document.getElementById("questionText").value = "";
+            document.getElementById("imageUrl").value = "";
+            showAlert("Вопрос добавлен", "success");
+
+            // Перезагружаем вопросы и применяем фильтр по текущему выбранному предмету
+            const selectedId = document.getElementById("subjectIdSelect").value;
+            await loadQuestions();
+            if (selectedId) {
+                const filtered = allQuestions.filter(q => String(q.subjectId) === String(selectedId));
+                renderQuestions(filtered);
+            }
+        } catch(err) {
+            showAlert("Не удалось добавить вопрос: " + err.message, "error");
+        }
+    }
+
+    // ======== Delete Question ========
+    async function deleteQuestion(id) {
+        if (!confirm("Удалить этот вопрос?")) return;
+        try {
+            const res = await fetch(`/api/questions/${id}`, { method: "DELETE" });
+            if (!res.ok) throw new Error(await res.text());
+            showAlert("Вопрос удалён", "success");
+
+            // Перезагружаем вопросы и применяем фильтр по текущему выбранному предмету
+            const selectedId = document.getElementById("subjectIdSelect").value;
+            await loadQuestions();
+            if (selectedId) {
+                const filtered = allQuestions.filter(q => String(q.subjectId) === String(selectedId));
+                renderQuestions(filtered);
+            }
+        } catch(err) {
+            showAlert("Не удалось удалить вопрос: " + err.message, "error");
+        }
+    }
+
+    // ======== Alert ========
+    function showAlert(message, type) {
+        questionAlert.innerText = message;
+        questionAlert.className = `alert ${type}`;
+        questionAlert.style.display = "block";
+        setTimeout(() => questionAlert.style.display = "none", 4000);
+    }
+
+    // ======== Init ========
+    loadSubjects().then(loadQuestions);
+
+</script>
+</body>
+</html>

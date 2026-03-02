@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Exam Portal</title>
+    <style>
+        /* ===== BASE ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body {
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: #eaf6f6;
+            min-height: 100vh;
+            padding: 30px;
+        }
+        h1 { font-size: 32px; font-weight: 700; margin-bottom: 30px; color: #7dffe8; }
+        h2 { font-size: 24px; margin-bottom: 20px; color: #b2fff2; }
+        h3 { font-size: 18px; margin-bottom: 10px; }
+
+        /* ===== EXAM LIST ===== */
+        #examList {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        .exam-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: 0.4s;
+        }
+        .exam-card:hover {
+            background: rgba(125,255,232,0.15);
+            transform: translateY(-5px);
+        }
+        .exam-card strong { font-size: 20px; margin-bottom: 10px; display: block; }
+        .btn-start {
+            margin-top: 15px;
+            padding: 12px 25px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            background: linear-gradient(135deg, #7dffe8, #00bfa6);
+            color: #003b36;
+            transition: 0.3s;
+        }
+        .btn-start:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(125,255,232,0.5);
+        }
+
+        /* ===== EXAM CONTAINER ===== */
+        #examContainer {
+            display: none;
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        #examHeader {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        #examTitle { font-size: 28px; }
+        #examTimer {
+            background: rgba(125,255,232,0.1);
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-weight: 600;
+            color: #7dffe8;
+        }
+
+        /* ===== PROGRESS BAR ===== */
+        #progressWrapper {
+            margin-bottom: 20px;
+            height: 12px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        #progressBar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(135deg, #7dffe8, #00bfa6);
+            transition: width 0.3s;
+        }
+
+        /* ===== QUESTIONS ===== */
+        .question {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: 0.3s;
+        }
+        .question:hover { background: rgba(125,255,232,0.12); transform: translateY(-2px); }
+        .question p { margin-bottom: 12px; font-size: 16px; }
+        input[type="radio"] { margin-right: 12px; accent-color: #7dffe8; }
+
+        /* ===== SUBMIT BUTTON ===== */
+        #submitExam {
+            padding: 14px 28px;
+            font-size: 16px;
+            border-radius: 14px;
+            border: none;
+            background: linear-gradient(135deg, #7dffe8, #00bfa6);
+            color: #003b36;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        #submitExam:hover { transform: scale(1.05); box-shadow: 0 0 15px rgba(125,255,232,0.5); }
+
+        #result {
+            margin-top: 20px;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        /* ===== ANIMATION ===== */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 600px) {
+            #examList { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<h1>Welcome, Student</h1>
+
+<!-- EXAM LIST -->
+<div id="examList"></div>
+
+<!-- EXAM CONTAINER -->
+<div id="examContainer">
+    <div id="examHeader">
+        <h2 id="examTitle"></h2>
+        <div id="examTimer">00:00</div>
+    </div>
+    <div id="progressWrapper">
+        <div id="progressBar"></div>
+    </div>
+    <form id="examForm"></form>
+    <button id="submitExam">Submit Exam</button>
+    <div id="result"></div>
+</div>
+
+<script>
+    // ===================== CONFIG =====================
+    const userId = 1; // ID студента
+    const apiBase = 'http://localhost:8080/student';
+
+    let currentExamId = null;
+    let questions = [];
+    let timerInterval = null;
+    let totalTime = 0; // в секундах
+    let elapsedTime = 0;
+
+    // ===================== LOAD EXAMS =====================
+    async function loadExams() {
+        try {
+            const res = await fetch(`${apiBase}/exams`);
+            const data = await res.json();
+            const examList = document.getElementById('examList');
+            examList.innerHTML = '';
+
+            if (!data || data.length === 0) {
+                examList.innerHTML = '<p>No exams available.</p>';
+                return;
+            }
+
+            data.forEach(exam => {
+                const div = document.createElement('div');
+                div.className = 'exam-card';
+                div.innerHTML = `
+                <strong>${exam.title}</strong>
+                <span>${exam.timeLimit} min</span>
+                <button class="btn-start" onclick="startExam(${exam.examId}, '${exam.title}', ${exam.timeLimit})">Start Exam</button>
+            `;
+                examList.appendChild(div);
+            });
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    // ===================== START EXAM =====================
+    async function startExam(examId, title, timeLimit) {
+        currentExamId = examId;
+        document.getElementById('examTitle').innerText = title;
+        document.getElementById('examContainer').style.display = 'block';
+        document.getElementById('examList').style.display = 'none';
+        document.getElementById('result').innerText = '';
+
+        totalTime = timeLimit * 60; // минуты в секунды
+        elapsedTime = 0;
+        updateTimer();
+
+        if (timerInterval) clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+            elapsedTime++;
+            updateTimer();
+            if (elapsedTime >= totalTime) {
+                clearInterval(timerInterval);
+                alert('Time is up! Submitting exam...');
+                submitExam();
+            }
+        }, 1000);
+
+        // Загрузка вопросов
+        try {
+            const res = await fetch(`${apiBase}/exam/${examId}`);
+            questions = await res.json();
+            const form = document.getElementById('examForm');
+            form.innerHTML = '';
+
+            questions.forEach((q, index) => {
+                const div = document.createElement('div');
+                div.className = 'question';
+                div.innerHTML = `<p><strong>Q${index + 1}:</strong> ${q.questionText}</p>`;
+                q.options.forEach(opt => {
+                    const input = document.createElement('input');
+                    input.type = 'radio';
+                    input.name = `question_${q.questionId}`;
+                    input.value = opt.optionId;
+                    div.appendChild(input);
+                    div.append(` ${opt.text}`);
+                    div.appendChild(document.createElement('br'));
+                });
+                form.appendChild(div);
+            });
+        } catch (err) { console.error(err); }
+    }
+
+    // ===================== UPDATE TIMER =====================
+    function updateTimer() {
+        const remaining = totalTime - elapsedTime;
+        const min = String(Math.floor(remaining/60)).padStart(2,'0');
+        const sec = String(remaining%60).padStart(2,'0');
+        document.getElementById('examTimer').innerText = `${min}:${sec}`;
+        const progress = (elapsedTime / totalTime) * 100;
+        document.getElementById('progressBar').style.width = progress + '%';
+    }
+
+    // ===================== SUBMIT EXAM =====================
+    async function submitExam() {
+        if (!questions || questions.length === 0) return;
+
+        const answers = questions.map(q => {
+            const radios = document.getElementsByName(`question_${q.questionId}`);
+            let selectedOptionId = null;
+            for (let r of radios) if (r.checked) selectedOptionId = parseInt(r.value);
+            return { userId, examId: currentExamId, questionId: q.questionId, selectedOptionId, answerText: '' };
+        }).filter(a => a.selectedOptionId !== null);
+
+        if (answers.length === 0) {
+            alert('Please select at least one answer!');
+            return;
+        }
+
+        try {
+            const res = await fetch(`${apiBase}/submit`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(answers)
+            });
+            const data = await res.json();
+            document.getElementById('result').innerText = data.score !== undefined ? `Your score: ${data.score}` : 'Exam submitted!';
+        } catch (err) { console.error(err); }
+    }
+
+    document.getElementById('submitExam').addEventListener('click', submitExam);
+
+    loadExams();
+</script>
+</body>
+</html>

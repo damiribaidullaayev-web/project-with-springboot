@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - EXAM SYSTEM</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: #eaf6f6;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 300px;
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(15px);
+            padding: 30px 20px;
+            border-right: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 35px;
+            color: #7dffe8;
+        }
+
+        .admin-title {
+            font-size: 16px;
+            margin-bottom: 15px;
+            opacity: 0.8;
+        }
+
+        .admin-item {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 14px 12px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: 0.35s;
+            overflow: hidden;
+        }
+
+        .admin-item:hover {
+            background: rgba(125,255,232,0.14);
+            transform: translateY(-2px);
+        }
+
+        .admin-item strong {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .admin-item .admin-details {
+            font-size: 13px;
+            opacity: 0.8;
+        }
+
+        /* CONTENT */
+        .content {
+            flex: 1;
+            padding: 35px 45px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .header span {
+            color: #7dffe8;
+        }
+
+        .actions .btn-outline {
+            background: transparent;
+            color: #7dffe8;
+            border: 1px solid rgba(125,255,232,0.4);
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .actions .btn-outline:hover {
+            background: rgba(125,255,232,0.15);
+        }
+
+        .info-section h2 {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: #b2fff2;
+        }
+
+        .info-section p, .info-section ul {
+            font-size: 14px;
+            opacity: 0.85;
+            margin-bottom: 10px;
+        }
+
+        .info-section ul {
+            list-style: disc;
+            padding-left: 20px;
+        }
+
+        .info-section li {
+            margin-bottom: 6px;
+        }
+
+        /* ===== CARDS для статистики ===== */
+        .stats-section {
+            margin-top: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: rgba(125,255,232,0.08);
+            border-radius: 14px;
+            padding: 20px;
+            transition: 0.3s;
+        }
+
+        .stat-card:hover {
+            background: rgba(125,255,232,0.16);
+            transform: translateY(-3px);
+        }
+
+        .stat-card h3 {
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .stat-card p {
+            font-size: 14px;
+            opacity: 0.85;
+        }
+    </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+    <div class="logo">EXAM SYSTEM</div>
+
+    <div class="admin-title">Навигация панели</div>
+
+    <div class="admin-item" onclick="navigateTo('subjects.html')">
+        <span class="emoji">📚</span>
+        <strong>SUBJECTS</strong>
+        <div class="admin-details">Добавление и управление предметами</div>
+    </div>
+
+    <div class="admin-item" onclick="navigateTo('questions.html')">
+        <span class="emoji">❓</span>
+        <strong>QUESTION</strong>
+        <div class="admin-details">Создание и редактирование вопросов</div>
+    </div>
+
+    <div class="admin-item" onclick="navigateTo('options.html')">
+        <span class="emoji">🔘</span>
+        <strong>OPTIONS</strong>
+        <div class="admin-details">Настройка вариантов ответов для MCQ</div>
+    </div>
+
+    <div class="admin-item" onclick="navigateTo('exams.html')">
+        <span class="emoji">📝</span>
+        <strong>MCQ EXAM</strong>
+        <div class="admin-details">Создание экзаменов и тестов</div>
+    </div>
+
+    <div class="admin-item" onclick="navigateTo('exam_questions.html')">
+        <span class="emoji">🔗</span>
+        <strong>EXAM_QUESTIONS</strong>
+        <div class="admin-details">Связь вопросов с экзаменами</div>
+    </div>
+
+    <div class="admin-item" onclick="navigateTo('answer_log.html')">
+        <span class="emoji">📊</span>
+        <strong>ANSWER_LOG</strong>
+        <div class="admin-details">Просмотр ответов студентов</div>
+    </div>
+
+    <div class="admin-item" onclick="navigateTo('scores.html')">
+        <span class="emoji">🏆</span>
+        <strong>SCORE</strong>
+        <div class="admin-details">Автоматический расчет баллов</div>
+    </div>
+</aside>
+
+<!-- CONTENT -->
+<main class="content">
+    <!-- HEADER -->
+    <div class="header">
+        <h1>Админ-панель <span id="adminName">Admin</span></h1>
+        <div class="actions">
+            <button class="btn-outline" onclick="logout()">Выйти</button>
+        </div>
+    </div>
+
+    <!-- INTRODUCTION / MINI TUTORIAL -->
+    <section class="info-section">
+        <h2>Добро пожаловать в панель администратора!</h2>
+        <p>Вы попали в центр управления платформой <strong>EXAM SYSTEM</strong>. Здесь вы можете добавлять и редактировать материалы для тестирования, следить за прогрессом студентов и управлять всей учебной базой.</p>
+        <p>Ниже мы кратко расскажем о каждой секции, чтобы вы сразу понимали, где и что можно сделать.</p>
+    </section>
+
+    <!-- DETAILED SECTIONS EXPLANATION -->
+    <section class="info-section">
+        <h2>Основные разделы панели</h2>
+        <ul>
+            <li>
+                <strong>SUBJECTS:</strong> здесь вы добавляете новые предметы для тестирования и редактируете существующие.
+                <em>Пример:</em> "Java", "Алгоритмы", "Базы данных".
+            </li>
+            <li>
+                <strong>QUESTION:</strong> управление всеми вопросами платформы. Можно создавать новые, редактировать или удалять устаревшие.
+                <em>Важно:</em> хорошо продуманные вопросы повышают качество экзамена и точность оценки знаний.
+            </li>
+            <li>
+                <strong>OPTIONS:</strong> настройка вариантов ответов для MCQ-вопросов. Каждый вопрос должен иметь правильный вариант и несколько отвлекающих.
+                <em>Совет:</em> проверяйте уникальность вариантов, чтобы не вводить студентов в заблуждение.
+            </li>
+            <li>
+                <strong>MCQ EXAM:</strong> создание экзаменов с ограничением по времени. Здесь вы выбираете предмет, набор вопросов и длительность теста.
+                <em>Совет:</em> комбинируйте вопросы разного уровня сложности.
+            </li>
+            <li>
+                <strong>EXAM_QUESTIONS:</strong> связь вопросов с экзаменами. Если вы создали новый вопрос, его нужно добавить в нужный экзамен через этот раздел.
+                <em>Важно:</em> проверяйте, чтобы каждый экзамен содержал актуальные вопросы.
+            </li>
+            <li>
+                <strong>ANSWER_LOG:</strong> журнал ответов студентов. Позволяет видеть, кто и как ответил на вопросы, выявлять ошибки и слабые места.
+                <em>Пример:</em> можно быстро определить, какой вопрос вызвал затруднения у большинства.
+            </li>
+            <li>
+                <strong>SCORE:</strong> автоматический расчет баллов и формирование статистики по экзаменам.
+                <em>Совет:</em> используйте этот раздел для анализа результатов и улучшения учебного процесса.
+            </li>
+        </ul>
+    </section>
+
+    <!-- GUIDANCE / TIPS -->
+    <section class="info-section">
+        <h2>Рекомендации для работы с панелью</h2>
+        <ul>
+            <li>Сначала создайте все предметы и вопросы, затем формируйте экзамены.</li>
+            <li>Регулярно проверяйте ANSWER_LOG, чтобы понимать, где студенты испытывают трудности.</li>
+            <li>Используйте SCORE для анализа общей успеваемости и планирования новых тестов.</li>
+            <li>Следите за уникальностью вопросов и вариантов ответов, чтобы избежать ошибок и повторов.</li>
+            <li>Проверяйте все новые изменения перед тем, как делать их доступными студентам.</li>
+        </ul>
+    </section>
+
+    <!-- STATS / QUICK OVERVIEW -->
+    <section class="stats-section">
+        <div class="stat-card">
+            <h3>Всего студентов</h3>
+            <p>1250 зарегистрированных пользователей</p>
+        </div>
+        <div class="stat-card">
+            <h3>Всего экзаменов</h3>
+            <p>58 активных экзаменов</p>
+        </div>
+        <div class="stat-card">
+            <h3>Всего вопросов</h3>
+            <p>670 вопросов в базе</p>
+        </div>
+        <div class="stat-card">
+            <h3>Средний балл</h3>
+            <p>Сейчас: 78%</p>
+        </div>
+    </section>
+
+</main>
+
+
+<script>
+    function navigateTo(page) {
+        window.location.href = page;
+    }
+
+    function logout() {
+        localStorage.removeItem("userName");
+        localStorage.removeItem("userId");
+        localStorage.removeItem("userRole");
+        window.location.href = "/index.html";
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const adminName = localStorage.getItem("userName") || "Admin";
+        document.getElementById("adminName").innerText = adminName;
+    });
+</script>
+
+</body>
+</html>
